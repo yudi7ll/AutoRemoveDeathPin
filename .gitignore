@@ -1,0 +1,51 @@
+# Rider IDE files
+.idea/
+*.sublime-workspace
+*.sublime-project
+*.iml
+*.iws
+
+# Rider caches and local history
+.idea/*
+.idea/.name
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/dictionaries/
+.idea/libraries/
+.idea/caches/
+.idea/gradle.xml
+.idea/compiler.xml
+
+# Rider specific files
+out/
+*.iws
+*.ipr
+*.iml
+.idea_modules/
+
+# Build results
+bin/
+obj/
+*.dll
+*.pdb
+*.exe
+*.log
+
+# User-specific files
+*.user
+*.userosscache
+*.suo
+*.sln.docstates
+
+# OS generated files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# BepInEx plugin builds
+*.zip
+*.tmp
+
+# NuGet packages
+*.nupkg
+packages/
