@@ -38,24 +38,26 @@ namespace AutoRemoveDeathPin
         [HarmonyPatch(typeof(Player), "OnDeath")]
         class Player_OnDeath_Patch
         {
-            private static bool noTombstoneCreated = false;
-            
-            static void Prefix(Player __instance)
+            static void Prefix(Player __instance, ref bool __state)
             {
-                noTombstoneCreated = __instance.m_inventory.NrOfItems() == 0;
-            }
-            static void Postfix(Player __instance)
-            {
-                var pins = Minimap.instance.m_pins;
-                pins.Reverse();
-                
-                foreach (var pin in pins)
+                var noTombstoneCreated = __instance.m_inventory.NrOfItems() == 0;
+                if (noTombstoneCreated)
                 {
+                    __state = true;
+                }
+            }
+            static void Postfix(Player __instance, ref bool __state)
+            {
+                if (!__state) return;
+                var pins = Minimap.instance.m_pins;
+                
+                for (var i = pins.Count - 1; i >= 0; i--)
+                {
+                    var pin = pins[i];
                     if (pin.m_type != Minimap.PinType.Death) continue;
-                    if (!noTombstoneCreated) continue;
                     
                     Minimap.instance.RemovePin(pin);
-                    noTombstoneCreated = false;
+                    __state = false;
                     break;
                 }
             }
