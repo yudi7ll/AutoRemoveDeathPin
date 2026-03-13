@@ -1,5 +1,4 @@
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using BepInEx;
 using BepInEx.Logging;
 using HarmonyLib;
@@ -12,25 +11,30 @@ namespace AutoRemoveDeathPin
     {
         private const string Guid = "yudi7ll.autoremovedeathpin";
         private const string Name = "AutoRemoveDeathPin";
-        private const string Version = "1.0.0";
-        public static ManualLogSource logger = BepInEx.Logging.Logger.CreateLogSource(Name);
+        private const string Version = "1.1.2";
+        private static ManualLogSource logger = BepInEx.Logging.Logger.CreateLogSource(Name);
 
         private Harmony _harmony;
     
         private void Awake()
         {
+            if (SystemInfo.graphicsDeviceType == UnityEngine.Rendering.GraphicsDeviceType.Null)
+            {
+                logger.LogInfo("Dedicated server detected. Mod disabled.");
+                return;
+            }
+
             _harmony = Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly(), Guid);
+            // logger.LogInfo("Mod loaded.");
         }
 
-        [HarmonyPatch(typeof(ZNetView), "Destroy")]
-        class ZNetView_Destroy_Patch
+        [HarmonyPatch(typeof(TombStone), "GiveBoost")]
+        class Tombstone_GiveBoost_Patch
         {
-            static void Prefix(ZNetView __instance)
+            static void Postfix(TombStone __instance)
             {
-                if (!__instance) return;
-                var tombstone = __instance.GetComponent<TombStone>();
-                if (!tombstone) return;
-                Minimap.instance.RemovePin(tombstone.transform.position, 1.5f);
+                // logger.LogInfo($"Removing death pin for tombstone at {__instance.transform.position}");
+                Minimap.instance.RemovePin(__instance.transform.position, 1.5f);
             }
         }
         
@@ -56,6 +60,7 @@ namespace AutoRemoveDeathPin
                     var pin = pins[i];
                     if (pin.m_type != Minimap.PinType.Death) continue;
                     
+                    // logger.LogInfo("Removing death pin because no tombstone was created.");
                     Minimap.instance.RemovePin(pin);
                     __state = false;
                     break;
